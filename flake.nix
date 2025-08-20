@@ -52,6 +52,7 @@
           nativeBuildInputs = with pkgs; [
             unzip
             autoPatchelfHook
+            makeWrapper
           ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
             wrapGAppsHook4
           ];
@@ -70,6 +71,7 @@
             libGL
             mesa
             vulkan-loader
+            vulkan-validation-layers
             
             # X11 support
             xorg.libX11
@@ -110,8 +112,37 @@
               # macOS specific setup
               chmod +x $out/share/redot/Redot.app/Contents/MacOS/Redot
             else
-              cp ${platform.executable} $out/bin/redot
-              chmod +x $out/bin/redot
+              cp ${platform.executable} $out/share/redot/redot-unwrapped
+              chmod +x $out/share/redot/redot-unwrapped
+              
+              # Create wrapper with proper library paths
+              makeWrapper $out/share/redot/redot-unwrapped $out/bin/redot \
+                --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath (with pkgs; [
+                  alsa-lib
+                  libpulseaudio
+                  dbus
+                  fontconfig
+                  udev
+                  libGL
+                  mesa
+                  vulkan-loader
+                  xorg.libX11
+                  xorg.libXcursor
+                  xorg.libXext
+                  xorg.libXfixes
+                  xorg.libXi
+                  xorg.libXinerama
+                  xorg.libXrandr
+                  xorg.libXrender
+                  wayland
+                  libxkbcommon
+                  glib
+                  gtk3
+                  zlib
+                  stdenv.cc.cc.lib
+                ])}" \
+                --set LIBGL_DRIVERS_PATH "${pkgs.mesa}/lib/dri" \
+                --set VK_LAYER_PATH "${pkgs.vulkan-validation-layers}/share/vulkan/explicit_layer.d"
             fi
             
             runHook postInstall
