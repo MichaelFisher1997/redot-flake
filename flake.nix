@@ -57,10 +57,21 @@
           ];
 
           buildInputs = with pkgs; [
+            # Audio
             alsa-lib
+            libpulseaudio
+            
+            # Core system
             dbus
             fontconfig
+            udev
+            
+            # Graphics
             libGL
+            mesa
+            vulkan-loader
+            
+            # X11 support
             xorg.libX11
             xorg.libXcursor
             xorg.libXext
@@ -69,10 +80,16 @@
             xorg.libXinerama
             xorg.libXrandr
             xorg.libXrender
-            libpulseaudio
+            
+            # Wayland support
+            wayland
             libxkbcommon
-            udev
-            vulkan-loader
+            
+            # Additional runtime deps
+            glib
+            gtk3
+            zlib
+            stdenv.cc.cc.lib
           ];
 
           dontConfigure = true;
