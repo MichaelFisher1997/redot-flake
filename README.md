@@ -7,7 +7,7 @@ A Nix flake for [Redot Engine](https://github.com/Redot-Engine/redot-engine), a 
 ### Running Redot directly
 
 ```bash
-nix run github:yourusername/redot-flake
+nix run github:MichaelFisher1997/redot-flake
 ```
 
 ### Installing in your system
@@ -17,7 +17,7 @@ Add to your `flake.nix`:
 ```nix
 {
   inputs = {
-    redot.url = "github:yourusername/redot-flake";
+    redot.url = "github:MichaelFisher1997/redot-flake";
   };
   
   outputs = { self, nixpkgs, redot }: {
