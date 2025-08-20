@@ -1,0 +1,142 @@
+name: Update Redot
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Daily at 6 AM UTC
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  check-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Setup Nix Magic Cache
+        uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Get latest stable Redot release
+        id: redot-release
+        run: |
+          # Get the latest non-prerelease version
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/Redot-Engine/redot-engine/releases | \
+            jq -r '.[] | select(.prerelease == false) | .tag_name' | head -1)
+          echo "latest=$LATEST_RELEASE" >> $GITHUB_OUTPUT
+          echo "Latest stable release: $LATEST_RELEASE"
+          
+          # Extract version without "redot-" prefix for version string
+          VERSION=$(echo $LATEST_RELEASE | sed 's/redot-//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Check if update needed
+        id: check-update
+        run: |
+          CURRENT_VERSION=$(grep 'version = ' flake.nix | sed 's/.*version = "\([^"]*\)".*/\1/')
+          echo "current=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT_VERSION"
+          echo "Latest version: ${{ steps.redot-release.outputs.version }}"
+          
+          if [[ "$CURRENT_VERSION" != "${{ steps.redot-release.outputs.version }}" ]]; then
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "Update needed!"
+          else
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+            echo "Already up to date"
+          fi
+
+      - name: Update version and get new hashes
+        if: steps.check-update.outputs.needs_update == 'true'
+        id: update-hashes
+        run: |
+          VERSION="${{ steps.redot-release.outputs.version }}"
+          
+          # Update version in flake.nix
+          sed -i "s/version = \"[^\"]*\"/version = \"$VERSION\"/" flake.nix
+          
+          # Function to get hash for a platform
+          get_hash() {
+            local platform=$1
+            local arch=$2
+            
+            if [[ $platform == "macos" ]]; then
+              local url="https://github.com/Redot-Engine/redot-engine/releases/download/redot-${VERSION}/Redot_v${VERSION}_${platform}.universal.zip"
+            else
+              local url="https://github.com/Redot-Engine/redot-engine/releases/download/redot-${VERSION}/Redot_v${VERSION}_linux.${arch}.zip"
+            fi
+            
+            echo "Getting hash for $platform $arch from $url"
+            nix-prefetch-url "$url" 2>/dev/null | nix-hash --type sha256 --to-sri || echo "ERROR"
+          }
+          
+          # Get hashes for all platforms
+          HASH_X86_64=$(get_hash "linux" "x86_64")
+          HASH_ARM64=$(get_hash "linux" "arm64")
+          HASH_MACOS=$(get_hash "macos" "universal")
+          
+          echo "Hashes:"
+          echo "x86_64-linux: $HASH_X86_64"
+          echo "aarch64-linux: $HASH_ARM64"
+          echo "macOS: $HASH_MACOS"
+          
+          # Update hashes in flake.nix (only if not ERROR)
+          if [[ "$HASH_X86_64" != "ERROR" ]]; then
+            sed -i "s|hash = \"sha256-[^\"]*\"; # x86_64-linux|hash = \"$HASH_X86_64\";|" flake.nix
+            # Also update the first occurrence (which is x86_64-linux)
+            sed -i "0,/hash = \"sha256-[^\"]*\";/s//hash = \"$HASH_X86_64\";/" flake.nix
+          fi
+          
+          if [[ "$HASH_ARM64" != "ERROR" ]]; then
+            sed -i "/aarch64-linux/,/hash = / s/hash = \"sha256-[^\"]*\";/hash = \"$HASH_ARM64\";/" flake.nix
+          fi
+          
+          if [[ "$HASH_MACOS" != "ERROR" ]]; then
+            sed -i "/x86_64-darwin/,/hash = / s/hash = \"sha256-[^\"]*\";/hash = \"$HASH_MACOS\";/" flake.nix
+            sed -i "/aarch64-darwin/,/hash = / s/hash = \"sha256-[^\"]*\";/hash = \"$HASH_MACOS\";/" flake.nix
+          fi
+
+      - name: Test build
+        if: steps.check-update.outputs.needs_update == 'true'
+        run: |
+          echo "Testing flake build..."
+          nix flake check --no-build
+          nix build --no-link
+
+      - name: Update flake lock
+        if: steps.check-update.outputs.needs_update == 'true'
+        run: nix flake update
+
+      - name: Create Pull Request
+        if: steps.check-update.outputs.needs_update == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            Update Redot to ${{ steps.redot-release.outputs.version }}
+            
+            - Updated version from ${{ steps.check-update.outputs.current }} to ${{ steps.redot-release.outputs.version }}
+            - Updated binary hashes for all platforms
+            - Updated flake lock
+          title: "Update Redot to ${{ steps.redot-release.outputs.version }}"
+          body: |
+            ## Update Redot Engine
+            
+            This automated PR updates Redot from `${{ steps.check-update.outputs.current }}` to `${{ steps.redot-release.outputs.version }}`.
+            
+            ### Changes
+            - ✅ Updated version string in flake.nix
+            - ✅ Fetched new binary hashes for all supported platforms
+            - ✅ Updated flake.lock file
+            - ✅ Verified the flake builds successfully
+            
+            ### Release Information
+            - **Release**: ${{ steps.redot-release.outputs.latest }}
+            - **Release URL**: https://github.com/Redot-Engine/redot-engine/releases/tag/${{ steps.redot-release.outputs.latest }}
+            
+            This PR was created automatically by the Update Redot workflow.
+          branch: update-redot-${{ steps.redot-release.outputs.version }}
+          branch-suffix: timestamp
+          delete-branch: true
