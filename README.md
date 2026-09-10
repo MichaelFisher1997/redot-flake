@@ -41,12 +41,14 @@ nix develop
 
 ## Auto-Updates
 
-This flake automatically updates when new stable Redot releases are published:
+This flake automatically updates via GitHub Actions:
 
-- Daily check at 6 AM UTC
-- Only updates for non-prerelease versions
-- Creates a PR with updated hashes and version
-- Verifies the build works before creating the PR
+- **Redot releases** — checked weekly (Mondays at 6 AM UTC). When a new stable
+  (non-prerelease) release is found, the version and platform hashes in
+  `flake.nix` are updated, the package is built to verify it works, and the
+  change is pushed directly to `main`.
+- **flake.lock** — updated weekly (Mondays at 4 AM UTC), validated with a build,
+  and pushed directly to `main`.
 
 ## Manual Update
 
