@@ -63,9 +63,9 @@ jobs:
             local arch=$2
             
             if [[ $platform == "macos" ]]; then
-              local url="https://github.com/Redot-Engine/redot-engine/releases/download/redot-${VERSION}/Redot_v${VERSION}_${platform}.universal.zip"
+              local url="https://github.com/Redot-Engine/redot-engine/releases/download/redot-${VERSION}/Redot_v${VERSION}_macos_universal.zip"
             else
-              local url="https://github.com/Redot-Engine/redot-engine/releases/download/redot-${VERSION}/Redot_v${VERSION}_linux.${arch}.zip"
+              local url="https://github.com/Redot-Engine/redot-engine/releases/download/redot-${VERSION}/Redot_v${VERSION}_linux_${arch}.zip"
             fi
             
             echo "Getting hash for $platform $arch from $url"
@@ -73,7 +73,7 @@ jobs:
           }
           
           # Get hashes for all platforms
-          HASH_X86_64=$(get_hash "linux" "x86_64")
+          HASH_X86_64=$(get_hash "linux" "x64")
           HASH_ARM64=$(get_hash "linux" "arm64")
           HASH_MACOS=$(get_hash "macos" "universal")
           

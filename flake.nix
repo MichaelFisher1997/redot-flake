@@ -11,27 +11,27 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         
-        version = "4.3.1-stable";
+        version = "26.2-stable";
         
         platformInfo = {
           x86_64-linux = {
-            url = "https://github.com/Redot-Engine/redot-engine/releases/download/redot-${version}/Redot_v${version}_linux.x86_64.zip";
-            hash = "sha256-utdrU+GFRkj7o/O2MbmWoWDljxtzB24emxhU+NGsbwU=";
-            executable = "Redot_v${version}_linux.x86_64";
+            url = "https://github.com/Redot-Engine/redot-engine/releases/download/redot-${version}/Redot_v${version}_linux_x64.zip";
+            hash = "sha256-9HTYkIBsQa8VUTz1qGACQ+JBiC4Rto27lWYONGW1seQ=";
+            executable = "redot.linuxbsd.editor.x86_64";
           };
           aarch64-linux = {
-            url = "https://github.com/Redot-Engine/redot-engine/releases/download/redot-${version}/Redot_v${version}_linux.arm64.zip";
-            hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # Will be updated by automation
-            executable = "Redot_v${version}_linux.arm64";
+            url = "https://github.com/Redot-Engine/redot-engine/releases/download/redot-${version}/Redot_v${version}_linux_arm64.zip";
+            hash = "sha256-4HAUbWy+8SDGFXO18SBEhBAK7r1WWrdZ0mrZqIbcEWA=";
+            executable = "redot.linuxbsd.editor.arm64";
           };
           x86_64-darwin = {
-            url = "https://github.com/Redot-Engine/redot-engine/releases/download/redot-${version}/Redot_v${version}_macos.universal.zip";
-            hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # Will be updated by automation
+            url = "https://github.com/Redot-Engine/redot-engine/releases/download/redot-${version}/Redot_v${version}_macos_universal.zip";
+            hash = "sha256-Eoy3vKablaOZioTnKwmQowLOWxkZ37Vs/ccJwsh5Ja4=";
             executable = "Redot.app/Contents/MacOS/Redot";
           };
           aarch64-darwin = {
-            url = "https://github.com/Redot-Engine/redot-engine/releases/download/redot-${version}/Redot_v${version}_macos.universal.zip";
-            hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # Will be updated by automation
+            url = "https://github.com/Redot-Engine/redot-engine/releases/download/redot-${version}/Redot_v${version}_macos_universal.zip";
+            hash = "sha256-Eoy3vKablaOZioTnKwmQowLOWxkZ37Vs/ccJwsh5Ja4=";
             executable = "Redot.app/Contents/MacOS/Redot";
           };
         };
