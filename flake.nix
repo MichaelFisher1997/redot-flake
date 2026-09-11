@@ -53,7 +53,7 @@
             unzip
             autoPatchelfHook
             makeWrapper
-          ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+          ] ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
             wrapGAppsHook4
           ];
 
@@ -74,14 +74,14 @@
             vulkan-validation-layers
             
             # X11 support
-            xorg.libX11
-            xorg.libXcursor
-            xorg.libXext
-            xorg.libXfixes
-            xorg.libXi
-            xorg.libXinerama
-            xorg.libXrandr
-            xorg.libXrender
+            libx11
+            libxcursor
+            libxext
+            libxfixes
+            libxi
+            libxinerama
+            libxrandr
+            libxrender
             
             # Wayland support
             wayland
@@ -105,7 +105,7 @@
             mkdir -p $out/bin $out/share/redot
             
             # Handle different platforms
-            if [[ "$system" == *"darwin"* ]]; then
+            if [[ "${pkgs.stdenv.hostPlatform.system}" == *"darwin"* ]]; then
               cp -r Redot.app $out/share/redot/
               ln -s $out/share/redot/${platform.executable} $out/bin/redot
               
@@ -126,14 +126,14 @@
                   libGL
                   mesa
                   vulkan-loader
-                  xorg.libX11
-                  xorg.libXcursor
-                  xorg.libXext
-                  xorg.libXfixes
-                  xorg.libXi
-                  xorg.libXinerama
-                  xorg.libXrandr
-                  xorg.libXrender
+                  libx11
+                  libxcursor
+                  libxext
+                  libxfixes
+                  libxi
+                  libxinerama
+                  libxrandr
+                  libxrender
                   wayland
                   libxkbcommon
                   glib
