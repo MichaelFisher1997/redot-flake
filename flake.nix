@@ -37,6 +37,11 @@
         };
 
         platform = platformInfo.${system} or (throw "Unsupported system: ${system}");
+
+        redot-icon = pkgs.fetchurl {
+          url = "https://raw.githubusercontent.com/Redot-Engine/redot-engine/redot-${version}/icon.svg";
+          hash = "sha256-OyC2hMAaH/Ugi7cScaAjG2tvCZLz7BslISXeTXoFvH8=";
+        };
         
       in
       {
@@ -143,6 +148,23 @@
                 ])}" \
                 --set LIBGL_DRIVERS_PATH "${pkgs.mesa}/lib/dri" \
                 --set VK_LAYER_PATH "${pkgs.vulkan-validation-layers}/share/vulkan/explicit_layer.d"
+
+              # XDG desktop integration (rofi drun, app menus, icons)
+              install -Dm644 ${redot-icon} $out/share/icons/hicolor/scalable/apps/redot.svg
+              mkdir -p $out/share/applications
+              cat > $out/share/applications/redot.desktop <<EOF
+[Desktop Entry]
+Type=Application
+Name=Redot Engine
+GenericName=Game Engine
+Comment=Multi-platform 2D and 3D game engine
+Exec=redot %f
+Icon=redot
+Terminal=false
+Categories=Development;Game;IDE;
+MimeType=application/x-redot-project;
+StartupWMClass=Godot_Engine
+EOF
             fi
             
             runHook postInstall
