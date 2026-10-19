@@ -11,27 +11,27 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         
-        version = "26.2-stable";
+        version = "26.3-stable";
         
         platformInfo = {
           x86_64-linux = {
             url = "https://github.com/Redot-Engine/redot-engine/releases/download/redot-${version}/Redot_v${version}_linux_x64.zip";
-            hash = "sha256-9HTYkIBsQa8VUTz1qGACQ+JBiC4Rto27lWYONGW1seQ=";
+            hash = "sha256-fVFVuA9CYvCjlMUEDlObszDLY90Ue+3ZFy2D7C79vZE=";
             executable = "redot.linuxbsd.editor.x86_64";
           };
           aarch64-linux = {
             url = "https://github.com/Redot-Engine/redot-engine/releases/download/redot-${version}/Redot_v${version}_linux_arm64.zip";
-            hash = "sha256-4HAUbWy+8SDGFXO18SBEhBAK7r1WWrdZ0mrZqIbcEWA=";
+            hash = "sha256-lNGE4PXEZNUHClaIqzNhVa60COkb46piisQQqnknMMU=";
             executable = "redot.linuxbsd.editor.arm64";
           };
           x86_64-darwin = {
             url = "https://github.com/Redot-Engine/redot-engine/releases/download/redot-${version}/Redot_v${version}_macos_universal.zip";
-            hash = "sha256-Eoy3vKablaOZioTnKwmQowLOWxkZ37Vs/ccJwsh5Ja4=";
+            hash = "sha256-v3ga5T36pLvGqt0h6/LGnaNoHthYlNOrKoFvCwN1WjQ=";
             executable = "Redot.app/Contents/MacOS/Redot";
           };
           aarch64-darwin = {
             url = "https://github.com/Redot-Engine/redot-engine/releases/download/redot-${version}/Redot_v${version}_macos_universal.zip";
-            hash = "sha256-Eoy3vKablaOZioTnKwmQowLOWxkZ37Vs/ccJwsh5Ja4=";
+            hash = "sha256-v3ga5T36pLvGqt0h6/LGnaNoHthYlNOrKoFvCwN1WjQ=";
             executable = "Redot.app/Contents/MacOS/Redot";
           };
         };
